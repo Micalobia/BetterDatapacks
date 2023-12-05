@@ -190,8 +190,8 @@ public abstract class ExecuteCommandMixin {
         var distance = ctx.getArgument("distance", Double.class);
         var entity = source.getEntityOrThrow();
         var vecs = getCastVecs(source, distance);
-        var type = getLiteralEnumArgument(ctx, "collision_mode", Raycast.CollisionMode::values).getType();
-        var fluid = getLiteralEnumArgument(ctx, "fluid_mode", Raycast.FluidMode::values).getFluidHandling();
+        var type = getLiteralEnumArgument(ctx, "collision_mode", Raycast.CollisionMode::values, Text.translatable("better_datapacks.raycast.error.invalid_collision_mode")).getType();
+        var fluid = getLiteralEnumArgument(ctx, "fluid_mode", Raycast.FluidMode::values, Text.translatable("better_datapacks.raycast.error.invalid_fluid_mode")).getFluidHandling();
         if (hasPredicate) {
             var blockPredicate = BlockPredicateArgumentType.getBlockPredicate(ctx, "block");
             return new Raycast.CustomShapeTypeRaycastContext(vecs.start(), vecs.end(), type, fluid, entity, blockPredicate);
@@ -237,12 +237,11 @@ public abstract class ExecuteCommandMixin {
     }
 
     @Unique
-    private static <S, E extends Enum<E> & StringIdentifiable> E getLiteralEnumArgument(CommandContext<S> context, String name, Supplier<E[]> valuesSupplier) throws CommandSyntaxException {
+    private static <S, E extends Enum<E> & StringIdentifiable> E getLiteralEnumArgument(CommandContext<S> context, String name, Supplier<E[]> valuesSupplier, Text errorMessage) throws CommandSyntaxException {
         var arg = context.getArgument(name, String.class);
         for (var value : valuesSupplier.get()) {
             if (value.asString().equals(arg)) return value;
         }
-        var text = Text.translatable("better_datapacks.raycast.error.invalid_mode");
-        throw new CommandSyntaxException(new SimpleCommandExceptionType(text), text);
+        throw new CommandSyntaxException(new SimpleCommandExceptionType(errorMessage), errorMessage);
     }
 }
