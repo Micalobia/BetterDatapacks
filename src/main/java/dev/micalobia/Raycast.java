@@ -75,4 +75,7 @@ public class Raycast {
             return VoxelShapes.empty();
         }
     }
+
+    public record VecSet(Vec3d start, Vec3d end, Vec3d multipliedDirection) {
+    }
 }

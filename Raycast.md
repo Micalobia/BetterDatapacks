@@ -7,8 +7,8 @@ execute raycast <distance> at (*|<predicate>)
 execute raycast <distance> as (*|<predicate>)
 execute raycast <distance> positioned at (*|<predicate>) (entity|hit) 
 execute raycast <distance> block (*|<block>) (collider|outline|visual) (none|source|any)
-execute (if|unless) raycast <distance> block (*|<block>) (collider|outline|visual) (none|source|any)
-execute (if|unless) raycast <distance> entity (*|<predicate>)
+execute (if|unless) raycast <distance> block (exists|<block>) (collider|outline|visual) (none|source|any)
+execute (if|unless) raycast <distance> entity (exists|<predicate>)
 ```
 
 

@@ -21,6 +21,7 @@ loom {
         }
     }
 
+    accessWidenerPath = file("src/main/resources/better_datapacks.accesswidener")
 }
 
 Set<String> apiModules = []

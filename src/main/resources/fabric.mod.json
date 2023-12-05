@@ -26,5 +26,6 @@
 		"java": ">=17"
 	},
 	"suggests": {
-	}
+	},
+	"accessWidener": "better_datapacks.accesswidener"
 }
