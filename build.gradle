@@ -24,7 +24,9 @@ loom {
     accessWidenerPath = file("src/main/resources/better_datapacks.accesswidener")
 }
 
-Set<String> apiModules = []
+Set<String> apiModules = [
+        "fabric-events-interaction-v0"
+]
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
