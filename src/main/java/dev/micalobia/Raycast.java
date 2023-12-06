@@ -15,10 +15,25 @@ import net.minecraft.world.WorldView;
 import java.util.function.Predicate;
 
 public class Raycast {
-    public enum CollisionMode implements StringIdentifiable {
-        COLLIDER(RaycastContext.ShapeType.COLLIDER, "collider"), OUTLINE(RaycastContext.ShapeType.OUTLINE, "outline"), VISUAL(RaycastContext.ShapeType.VISUAL, "visual");
+    public enum BlockHitMode implements StringIdentifiable {
+        BLOCK("block"), HIT("hit");
 
         private final String name;
+
+        BlockHitMode(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String asString() {
+            return name;
+        }
+    }
+
+    public enum CollisionMode implements StringIdentifiable {
+        COLLIDER(RaycastContext.ShapeType.COLLIDER, "collider"), OUTLINE(RaycastContext.ShapeType.OUTLINE, "outline"), VISUAL(RaycastContext.ShapeType.VISUAL, "visual");
+        private final String name;
+
         private final RaycastContext.ShapeType type;
 
         CollisionMode(RaycastContext.ShapeType type, String name) {
@@ -34,6 +49,7 @@ public class Raycast {
         public String asString() {
             return name;
         }
+
     }
 
     public enum FluidMode implements StringIdentifiable {

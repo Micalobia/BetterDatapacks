@@ -6,7 +6,7 @@
 execute raycast <distance> at (*|<predicate>)
 execute raycast <distance> as (*|<predicate>)
 execute raycast <distance> positioned at (*|<predicate>) (entity|hit) 
-execute raycast <distance> block (*|<block>) (collider|outline|visual) (none|source|any)
+execute raycast <distance> block (*|<block>) (collider|outline|visual) (none|source|any) (block|hit)
 execute (if|unless) raycast <distance> block (exists|<block>) (collider|outline|visual) (none|source|any)
 execute (if|unless) raycast <distance> entity (exists|<predicate>)
 ```
@@ -33,6 +33,7 @@ execute (if|unless) raycast <distance> entity (exists|<predicate>)
 <br>Sets the execution position to the hit location on the first matching block, or the end of the ray.
 <br>`(collider|outline|visual)` is the collision mode.
 <br>`(none|source|any)` is the fluid handling mode.
+<br>`(block|hit)` is setting the location to where it hit or the center of the block.
 
 ## If Block
 `... block (*|<block>) (collider|outline|visual) (none|source|any|water)`

@@ -1,5 +1,6 @@
 {
   "better_datapacks.raycast.error.invalid_collision_mode": "That isn't a valid collision mode!",
   "better_datapacks.raycast.error.invalid_fluid_mode": "That isn't a valid fluid mode!",
+  "better_datapacks.raycast.error.invalid_hit_mode": "That isn't a valid hit mode!",
   "better_datapacks.raycast.error.no_target_found": "No target found!"
 }

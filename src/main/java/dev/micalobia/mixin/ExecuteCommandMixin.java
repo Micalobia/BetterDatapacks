@@ -71,7 +71,7 @@ public abstract class ExecuteCommandMixin {
         dispatcher.register(literal("execute").requires(source -> source.hasPermissionLevel(2)).then(literal("raycast").then(distanceArgument().then(literal("at").then(literal("*").redirect(root, ctx -> raycastAt(ctx, false))).then(entityArgument().redirect(root, ctx -> raycastAt(ctx, true)))))));
         dispatcher.register(literal("execute").requires(source -> source.hasPermissionLevel(2)).then(literal("raycast").then(distanceArgument().then(literal("as").then(literal("*").redirect(root, ctx -> raycastAs(ctx, false))).then(entityArgument().redirect(root, ctx -> raycastAs(ctx, true)))))));
         dispatcher.register(literal("execute").requires(source -> source.hasPermissionLevel(2)).then(literal("raycast").then(distanceArgument().then(literal("positioned").then(literal("at").then(literal("*").then(literal("entity").redirect(root, ctx -> raycastPositionedAt(ctx, false, false)))).then(literal("*").then(literal("hit").redirect(root, ctx -> raycastPositionedAt(ctx, false, true)))).then(argument("hasPredicate", IdentifierArgumentType.identifier()).suggests(LOOT_CONDITIONS).then(literal("entity").redirect(root, ctx -> raycastPositionedAt(ctx, true, false)))).then(argument("hasPredicate", IdentifierArgumentType.identifier()).suggests(LOOT_CONDITIONS).then(literal("hit").redirect(root, ctx -> raycastPositionedAt(ctx, true, true)))))))));
-        dispatcher.register(literal("execute").requires(source -> source.hasPermissionLevel(2)).then(literal("raycast").then(distanceArgument().then(literal("block").then(literal("*").then(generateLiteralEnumArgument("collision_mode", Raycast.CollisionMode::values).then(generateLiteralEnumArgument("fluid_mode", Raycast.FluidMode::values).redirect(root, ctx -> raycastBlock(ctx, false)))))).then(literal("block").then(blockArgument(registryAccess).then(generateLiteralEnumArgument("collision_mode", Raycast.CollisionMode::values).then(generateLiteralEnumArgument("fluid_mode", Raycast.FluidMode::values).redirect(root, ctx -> raycastBlock(ctx, true)))))))));
+        dispatcher.register(literal("execute").requires(source -> source.hasPermissionLevel(2)).then(literal("raycast").then(distanceArgument().then(literal("block").then(literal("*").then(generateLiteralEnumArgument("collision_mode", Raycast.CollisionMode::values).then(generateLiteralEnumArgument("fluid_mode", Raycast.FluidMode::values).then(generateLiteralEnumArgument("hit_mode", Raycast.BlockHitMode::values).redirect(root, ctx -> raycastBlock(ctx, false))))))).then(literal("block").then(blockArgument(registryAccess).then(generateLiteralEnumArgument("collision_mode", Raycast.CollisionMode::values).then(generateLiteralEnumArgument("fluid_mode", Raycast.FluidMode::values).then(generateLiteralEnumArgument("hit_mode", Raycast.BlockHitMode::values).redirect(root, ctx -> raycastBlock(ctx, true))))))))));
     }
 
     @Inject(method = "addConditionArguments", at = @At(value = "HEAD"))
@@ -120,7 +120,11 @@ public abstract class ExecuteCommandMixin {
         var source = ctx.getSource();
         var world = source.getWorld();
         var cast = world.raycast(rayCtx);
-        return source.withPosition(cast.getPos());
+        var hitMode = getLiteralEnumArgument(ctx, "hit_mode", Raycast.BlockHitMode::values, Text.translatable("better_datapacks.raycast.error.invalid_hit_mode"));
+        return switch (hitMode) {
+            case BLOCK -> source.withPosition(cast.getBlockPos().toCenterPos());
+            case HIT -> source.withPosition(cast.getPos());
+        };
     }
 
     @Unique
