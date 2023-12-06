@@ -206,7 +206,7 @@ public abstract class ExecuteCommandMixin {
         var rotation = source.getRotation();
         var direction = vectorFromRotation(rotation);
         var multipliedDirection = direction.multiply(distance);
-        var end = direction.add(multipliedDirection);
+        var end = start.add(multipliedDirection);
         return new Raycast.VecSet(start, end, multipliedDirection);
     }
 
