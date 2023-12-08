@@ -8,8 +8,11 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "BrewingRecipeRegistryAccessor",
     "CriteriaInvoker",
-    "EmptyRecipeMixin",
-    "ExecuteCommandMixin"
+    "ExecuteCommandMixin",
+    "PotionAccessor",
+    "RecipeMixin",
+    "StatusEffectInstanceAccessor"
   ]
 }
