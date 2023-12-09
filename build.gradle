@@ -25,7 +25,10 @@ loom {
 }
 
 Set<String> apiModules = [
-        "fabric-events-interaction-v0"
+        "fabric-events-interaction-v0",
+        "fabric-lifecycle-events-v1",
+        "fabric-content-registries-v0",
+        "fabric-transitive-access-wideners-v1"
 ]
 
 dependencies {

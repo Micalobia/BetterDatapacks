@@ -6,7 +6,6 @@ import net.minecraft.recipe.BrewingRecipeRegistry;
 import net.minecraft.recipe.Ingredient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.List;
 
@@ -17,12 +16,13 @@ public interface BrewingRecipeRegistryAccessor {
         throw new AssertionError();
     }
 
-
-    @Invoker("registerPotionRecipe")
-    static void registerPotionRecipe(Potion input, Item item, Potion output) {
+    @Accessor("ITEM_RECIPES")
+    static List<BrewingRecipeRegistry.Recipe<Item>> getItemRecipes() {
+        throw new AssertionError();
     }
 
-    @Invoker("registerItemRecipe")
-    static void registerItemRecipe(Item input, Item item, Item output) {
+    @Accessor("POTION_RECIPES")
+    static List<BrewingRecipeRegistry.Recipe<Potion>> getPotionRecipes() {
+        throw new AssertionError();
     }
 }
