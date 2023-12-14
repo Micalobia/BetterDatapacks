@@ -30,7 +30,6 @@ public class RecipeMixin {
         var type = JsonHelper.getString(json, "type");
         switch (type) {
             case "better_datapacks:potion":
-                BetterDatapacks.LOGGER.info(id.toString());
                 PotionRecipe.PotionType.register(id, json);
                 cancel(cir, id);
                 break;
