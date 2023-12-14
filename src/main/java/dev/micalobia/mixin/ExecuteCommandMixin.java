@@ -2,17 +2,16 @@ package dev.micalobia.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.micalobia.BetterDatapacks;
+import dev.micalobia.command.CommandUtility;
 import dev.micalobia.Raycast;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandRegistryAccess;
@@ -29,7 +28,6 @@ import net.minecraft.server.command.ExecuteCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
@@ -48,8 +46,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
+import static dev.micalobia.command.CommandUtility.generateLiteralEnumArgument;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -120,7 +118,7 @@ public abstract class ExecuteCommandMixin {
         var source = ctx.getSource();
         var world = source.getWorld();
         var cast = world.raycast(rayCtx);
-        var hitMode = getLiteralEnumArgument(ctx, "hit_mode", Raycast.BlockHitMode::values, Text.translatable("better_datapacks.raycast.error.invalid_hit_mode"));
+        var hitMode = CommandUtility.getLiteralEnumArgument(ctx, "hit_mode", Raycast.BlockHitMode::values);
         return switch (hitMode) {
             case BLOCK -> source.withPosition(cast.getBlockPos().toCenterPos());
             case HIT -> source.withPosition(cast.getPos());
@@ -164,7 +162,7 @@ public abstract class ExecuteCommandMixin {
         var vecs = getCastVecs(source, distance);
         var cast = ProjectileUtil.raycast(entity, vecs.start(), vecs.end(), entity.getBoundingBox().stretch(vecs.multipliedDirection()), predicate, 0);
         if (cast == null)
-            throw new CommandException(Text.translatable("better_datapacks.raycast.error.no_target_found"));
+            throw new CommandException(Text.translatable("argument.entity.notfound.entity"));
         return cast;
     }
 
@@ -194,8 +192,8 @@ public abstract class ExecuteCommandMixin {
         var distance = ctx.getArgument("distance", Double.class);
         var entity = source.getEntityOrThrow();
         var vecs = getCastVecs(source, distance);
-        var type = getLiteralEnumArgument(ctx, "collision_mode", Raycast.CollisionMode::values, Text.translatable("better_datapacks.raycast.error.invalid_collision_mode")).getType();
-        var fluid = getLiteralEnumArgument(ctx, "fluid_mode", Raycast.FluidMode::values, Text.translatable("better_datapacks.raycast.error.invalid_fluid_mode")).getFluidHandling();
+        var type = CommandUtility.getLiteralEnumArgument(ctx, "collision_mode", Raycast.CollisionMode::values).getType();
+        var fluid = CommandUtility.getLiteralEnumArgument(ctx, "fluid_mode", Raycast.FluidMode::values).getFluidHandling();
         if (hasPredicate) {
             var blockPredicate = BlockPredicateArgumentType.getBlockPredicate(ctx, "block");
             return new Raycast.CustomShapeTypeRaycastContext(vecs.start(), vecs.end(), type, fluid, entity, blockPredicate);
@@ -223,29 +221,5 @@ public abstract class ExecuteCommandMixin {
             ctx.markActive(LootContext.predicate(condition));
             return condition.test(ctx);
         };
-    }
-
-    @Unique
-    private static <E extends Enum<E> & StringIdentifiable> RequiredArgumentBuilder<ServerCommandSource, String> generateLiteralEnumArgument(String name, Supplier<E[]> valuesSupplier) {
-        return argument(name, StringArgumentType.word()).suggests(literalEnumSuggestions(valuesSupplier));
-    }
-
-    @Unique
-    private static <E extends Enum<E> & StringIdentifiable> SuggestionProvider<ServerCommandSource> literalEnumSuggestions(Supplier<E[]> valuesSupplier) {
-        return ((context, builder) -> {
-            for (var value : valuesSupplier.get()) {
-                builder.suggest(value.asString());
-            }
-            return builder.buildFuture();
-        });
-    }
-
-    @Unique
-    private static <S, E extends Enum<E> & StringIdentifiable> E getLiteralEnumArgument(CommandContext<S> context, String name, Supplier<E[]> valuesSupplier, Text errorMessage) throws CommandSyntaxException {
-        var arg = context.getArgument(name, String.class);
-        for (var value : valuesSupplier.get()) {
-            if (value.asString().equals(arg)) return value;
-        }
-        throw new CommandSyntaxException(new SimpleCommandExceptionType(errorMessage), errorMessage);
     }
 }
