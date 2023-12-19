@@ -11,6 +11,9 @@
     "BrewingRecipeRegistryAccessor",
     "CriteriaInvoker",
     "ExecuteCommandMixin",
+    "NbtCraftingMixin$ShapedRecipeSerializerMixin",
+    "NbtCraftingMixin$ShapelessRecipeSerializerMixin",
+    "NbtCraftingMixin$SmithingTransformRecipeSerializerMixin",
     "PotionAccessor",
     "RecipeMixin",
     "StatusEffectInstanceAccessor"
