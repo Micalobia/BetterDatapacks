@@ -1,4 +1,4 @@
-package dev.micalobia;
+package dev.micalobia.recipe;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
@@ -8,6 +8,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.micalobia.BetterDatapacks;
 import dev.micalobia.mixin.BrewingRecipeRegistryAccessor;
 import dev.micalobia.mixin.PotionAccessor;
 import dev.micalobia.mixin.StatusEffectInstanceAccessor;

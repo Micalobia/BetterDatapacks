@@ -2,8 +2,7 @@ package dev.micalobia.mixin;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.micalobia.BetterDatapacks;
-import dev.micalobia.PotionRecipe;
+import dev.micalobia.recipe.PotionRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeManager;
