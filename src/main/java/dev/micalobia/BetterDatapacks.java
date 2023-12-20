@@ -2,6 +2,7 @@ package dev.micalobia;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import dev.micalobia.advancement.criterion.BlockBrokenCriterion;
 import dev.micalobia.command.calculate.CalculateCommand;
 import dev.micalobia.mixin.CriteriaInvoker;
 import dev.micalobia.recipe.PotionRecipe;

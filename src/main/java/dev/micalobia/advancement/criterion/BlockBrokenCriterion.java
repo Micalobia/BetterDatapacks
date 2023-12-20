@@ -1,8 +1,9 @@
-package dev.micalobia;
+package dev.micalobia.advancement.criterion;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mojang.serialization.JsonOps;
+import dev.micalobia.BetterDatapacks;
 import net.minecraft.advancement.criterion.AbstractCriterion;
 import net.minecraft.advancement.criterion.AbstractCriterionConditions;
 import net.minecraft.block.BlockState;
