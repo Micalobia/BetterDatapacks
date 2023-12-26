@@ -33,7 +33,7 @@ public class EntityInteractionEvent extends Event<
         boolean cancel = reduce(context, false, data -> data.cancel, (a, b) -> a | b);
         var result = cancel ? ActionResult.SUCCESS : ActionResult.PASS;
         if (hand == Hand.OFF_HAND) return result;
-        if (entityHitResult == null) return result;
+        if (entityHitResult != null) return result;
         if (player.isSpectator()) return result;
         trigger(new Context(server, player, entity));
         return result;
