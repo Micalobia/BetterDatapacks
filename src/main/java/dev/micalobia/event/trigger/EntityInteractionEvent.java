@@ -34,8 +34,7 @@ public class EntityInteractionEvent extends Event<
         var result = cancel ? ActionResult.SUCCESS : ActionResult.PASS;
         if (hand == Hand.OFF_HAND) return result;
         if (entityHitResult != null) return result;
-        if (player.isSpectator()) return result;
-        trigger(new Context(server, player, entity));
+        trigger(context);
         return result;
     }
 
