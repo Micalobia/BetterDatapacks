@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import dev.micalobia.BetterDatapacks;
 import dev.micalobia.event.trigger.EntityInteractionEvent;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.minecraft.resource.JsonDataLoader;
@@ -22,6 +23,7 @@ public final class Events {
     private static final Map<Identifier, Event> EVENTS = new HashMap<>();
 
     public static final EntityInteractionEvent ENTITY_USE = register(BetterDatapacks.id("entity_use"), new EntityInteractionEvent());
+    public static final EntityInteractionEvent ENTITY_ATTACK = register(BetterDatapacks.id("entity_attack"), new EntityInteractionEvent());
 
     private Events() {
     }
@@ -33,6 +35,7 @@ public final class Events {
 
     public static void init() {
         UseEntityCallback.EVENT.register(ENTITY_USE::trigger);
+        AttackEntityCallback.EVENT.register(ENTITY_ATTACK::trigger);
     }
 
     public static class ReloadListener extends JsonDataLoader implements IdentifiableResourceReloadListener {
