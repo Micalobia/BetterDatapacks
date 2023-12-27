@@ -2,12 +2,16 @@ package dev.micalobia.event.trigger;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.micalobia.BetterDatapacks;
+import dev.micalobia.CodecUtility;
 import dev.micalobia.event.Event;
 import dev.micalobia.event.EventCondition;
 import dev.micalobia.event.EventContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.predicate.entity.EntityPredicate;
+import net.minecraft.predicate.item.ItemPredicate;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
@@ -29,10 +33,10 @@ public class EntityInteractionEvent extends Event<
     public ActionResult trigger(PlayerEntity player, World world, Hand hand, Entity entity, EntityHitResult entityHitResult) {
         if (world.isClient) return ActionResult.PASS;
         var server = ((ServerWorld) world).getServer();
-        var context = new Context(server, player, entity);
+        var item = player.getStackInHand(hand);
+        var context = new Context(server, player, entity, item, hand);
         boolean cancel = reduce(context, false, data -> data.cancel, (a, b) -> a | b);
         var result = cancel ? ActionResult.SUCCESS : ActionResult.PASS;
-        if (hand == Hand.OFF_HAND) return result;
         if (entityHitResult != null) return result;
         trigger(context);
         return result;
@@ -52,11 +56,15 @@ public class EntityInteractionEvent extends Event<
 
         private final Entity interactee;
         private final Entity interactor;
+        private final ItemStack item;
+        private final Hand hand;
 
-        protected Context(MinecraftServer server, Entity interactor, Entity interactee) {
+        protected Context(MinecraftServer server, Entity interactor, Entity interactee, ItemStack item, Hand hand) {
             super(server);
             this.interactor = interactor;
             this.interactee = interactee;
+            this.item = item;
+            this.hand = hand;
         }
 
         @Override
@@ -66,27 +74,32 @@ public class EntityInteractionEvent extends Event<
         }
     }
 
-    public record Conditions(Optional<EntityPredicate> interactorPredicate,
-                             Optional<EntityPredicate> interacteePredicate
+    public record Conditions(Optional<EntityPredicate> interactor,
+                             Optional<EntityPredicate> interactee,
+                             Optional<ItemPredicate> item,
+                             Optional<Hand> hand
     ) implements EventCondition<Context> {
         private static final Codec<Conditions> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                EntityPredicate.CODEC.optionalFieldOf("interactor").forGetter(Conditions::interactorPredicate),
-                EntityPredicate.CODEC.optionalFieldOf("interactee").forGetter(Conditions::interacteePredicate)
+                EntityPredicate.CODEC.optionalFieldOf("interactor").forGetter(Conditions::interactor),
+                EntityPredicate.CODEC.optionalFieldOf("interactee").forGetter(Conditions::interactee),
+                ItemPredicate.CODEC.optionalFieldOf("item").forGetter(Conditions::item),
+                CodecUtility.HAND_CODEC.optionalFieldOf("hand").forGetter(Conditions::hand)
         ).apply(instance, Conditions::new));
 
         @Override
         public boolean check(Context context) {
+            if (hand.isPresent() && (hand.get() != context.hand)) return false;
+            if (this.item.isPresent() && !this.item.get().test(context.item)) return false;
             var serverWorld = (ServerWorld) context.interactor.getWorld();
-            if (interactorPredicate.isPresent() && !interactorPredicate.get().test(serverWorld, context.interactor.getPos(), context.interactor)) {
+            if (interactor.isPresent() && !interactor.get().test(serverWorld, context.interactor.getPos(), context.interactor))
                 return false;
-            }
-            return interacteePredicate.isEmpty() || interacteePredicate.get().test(serverWorld, context.interactee.getPos(), context.interactee);
+            return interactee.isEmpty() || interactee.get().test(serverWorld, context.interactee.getPos(), context.interactee);
         }
     }
 
     public record Data(Executor executor, boolean cancel) {
         private static final Codec<Data> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Executor.CODEC.fieldOf("executor").forGetter(Data::executor),
+                Executor.CODEC.optionalFieldOf("executor", Executor.INTERACTOR).forGetter(Data::executor),
                 Codec.BOOL.optionalFieldOf("cancel", false).forGetter(Data::cancel)
         ).apply(instance, Data::new));
     }
