@@ -4,8 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import dev.micalobia.BetterDatapacks;
+import dev.micalobia.event.trigger.BlockAttackEvent;
 import dev.micalobia.event.trigger.EntityInteractionEvent;
+import dev.micalobia.event.trigger.BlockUseEvent;
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.minecraft.resource.JsonDataLoader;
@@ -24,6 +28,8 @@ public final class Events {
 
     public static final EntityInteractionEvent ENTITY_USE = register(BetterDatapacks.id("entity_use"), new EntityInteractionEvent());
     public static final EntityInteractionEvent ENTITY_ATTACK = register(BetterDatapacks.id("entity_attack"), new EntityInteractionEvent());
+    public static final BlockUseEvent USE_BLOCK = register(BetterDatapacks.id("use_block"), new BlockUseEvent());
+    public static final BlockAttackEvent ATTACK_BLOCK = register(BetterDatapacks.id("attack_block"), new BlockAttackEvent());
 
     private Events() {
     }
@@ -36,6 +42,8 @@ public final class Events {
     public static void init() {
         UseEntityCallback.EVENT.register(ENTITY_USE::trigger);
         AttackEntityCallback.EVENT.register(ENTITY_ATTACK::trigger);
+        UseBlockCallback.EVENT.register(USE_BLOCK::trigger);
+        AttackBlockCallback.EVENT.register(ATTACK_BLOCK::trigger);
     }
 
     public static class ReloadListener extends JsonDataLoader implements IdentifiableResourceReloadListener {
