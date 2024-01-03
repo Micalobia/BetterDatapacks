@@ -73,7 +73,7 @@ public abstract class Event<D, X extends EventContext<D, X, C>, C extends EventC
             }
             if (!condition.check(context)) return;
             try {
-                FunctionCommand.execute(context.toSource(data), func.get(), context.getMacroArguments());
+                FunctionCommand.execute(context.toSource(data).withSilent().withLevel(2), func.get(), context.getMacroArguments());
                 processSuccess.accept(data);
             } catch (MacroException err) {
                 BetterDatapacks.LOGGER.error(err.getMessage().getString());

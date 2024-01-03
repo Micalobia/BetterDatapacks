@@ -55,7 +55,7 @@ public final class BlockUseEvent extends Event<
 
     public record Data(At at, boolean cancel) {
         private static final Codec<Data> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                At.CODEC.fieldOf("at").forGetter(Data::at),
+                At.CODEC.optionalFieldOf("at", At.PLAYER).forGetter(Data::at),
                 Codec.BOOL.optionalFieldOf("cancel", false).forGetter(Data::cancel)
         ).apply(instance, Data::new));
     }
