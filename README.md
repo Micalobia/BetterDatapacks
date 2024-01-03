@@ -15,14 +15,14 @@ completely server-side features
 - Advancement trigger `better_datapacks:block_broken` detects when a block is broken. More about
   it [here](BlockBroken.md)
 - Recipe type `better_datapacks:empty` lets you overwrite a recipe with nothing, without an error log.
+- Recipe type `better_datapacks:potion` and `better_datapacks:potion_item` to make potion recipes
+- `calculate` command that lets you do a lot of math operations between just about any number and storing it just about anywhere
+- Nbt Crafting in shaped, shapeless, and smithing recipes
+- Events, which go in the `events` folder in a datapack, similar to advancements. More about it [here](Events.md)
 
 ## Planned
 
 - Negative Tags (removing something from a tag without rewriting the entire thing)
-- Math commands
-- Changing the executor/execution location of an advancement reward function away from the player*
-- Nbt Crafting*
-- Potion Recipes*
 - Custom Enchants* (primitive, will do nothing but be compatible with anvils and such)
 - Custom Commands (with arguments and everything, will execute a function using the macro feature)
 
