@@ -5,9 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.micalobia.BetterDatapacks;
-import net.minecraft.server.command.FunctionCommand;
-import net.minecraft.server.function.CommandFunction;
-import net.minecraft.server.function.MacroException;
+import net.minecraft.server.function.LazyContainer;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,11 +57,11 @@ public abstract class Event<D, X extends EventContext<D, X, C>, C extends EventC
             return Optional.empty();
         }
         var event = pair.left().orElseThrow();
-        return Optional.of(new TriggerableEvent<>(this, event.data, event.condition, new CommandFunction.LazyContainer(event.function)));
+        return Optional.of(new TriggerableEvent<>(this, event.data, event.condition, new LazyContainer(event.function)));
     }
 
     public record TriggerableEvent<D, X extends EventContext<D, X, C>, C extends EventCondition<X>, E extends Event<D, X, C, E>>(
-            Event<D, X, C, E> event, D data, C condition, CommandFunction.LazyContainer function) {
+            Event<D, X, C, E> event, D data, C condition, LazyContainer function) {
         public void trigger(X context, Consumer<D> processSuccess) {
             var manager = context.getServer().getCommandFunctionManager();
             var func = function.get(manager);
@@ -72,12 +70,10 @@ public abstract class Event<D, X extends EventContext<D, X, C>, C extends EventC
                 return;
             }
             if (!condition.check(context)) return;
-            try {
-                FunctionCommand.execute(context.toSource(data).withSilent().withLevel(2), func.get(), context.getMacroArguments());
-                processSuccess.accept(data);
-            } catch (MacroException err) {
-                BetterDatapacks.LOGGER.error(err.getMessage().getString());
-            }
+            // TODO: Do the macro substitution, they changed a lot from 1.20.2 to 1.20.4 so not sure how to do it anymore
+            var source = context.toSource(data).withSilent().withLevel(2);
+            var commandFunction = func.get();
+            manager.execute(commandFunction, source);
         }
 
         private boolean canReduce(X context) {

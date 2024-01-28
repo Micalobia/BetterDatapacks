@@ -40,6 +40,8 @@ dependencies {
     apiModules.forEach {
         include(modImplementation(fabricApi.module(it, project.fabric_version)))
     }
+
+    modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 processResources {

@@ -7,13 +7,13 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.micalobia.BetterDatapacks;
 import dev.micalobia.command.CommandUtility;
 import dev.micalobia.Raycast;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.BlockPredicateArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
@@ -62,6 +62,9 @@ public abstract class ExecuteCommandMixin {
     private static ArgumentBuilder<ServerCommandSource, ?> addConditionLogic(CommandNode<ServerCommandSource> root, ArgumentBuilder<ServerCommandSource, ?> builder, boolean positive, ExecuteCommand.Condition condition) {
         return null;
     }
+
+    @Unique
+    private static final SimpleCommandExceptionType ENTITY_NOT_FOUND = new SimpleCommandExceptionType(Text.translatable("argument.entity.notfound.entity"));
 
 
     @Inject(method = "register", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
@@ -139,8 +142,6 @@ public abstract class ExecuteCommandMixin {
         try {
             entityCast(ctx, hasPredicate);
             return true;
-        } catch (CommandException err) {
-            return false;
         } catch (Exception err) {
             BetterDatapacks.LOGGER.info(err.getMessage());
             throw err;
@@ -162,7 +163,7 @@ public abstract class ExecuteCommandMixin {
         var vecs = getCastVecs(source, distance);
         var cast = ProjectileUtil.raycast(entity, vecs.start(), vecs.end(), entity.getBoundingBox().stretch(vecs.multipliedDirection()), predicate, 0);
         if (cast == null)
-            throw new CommandException(Text.translatable("argument.entity.notfound.entity"));
+            throw ENTITY_NOT_FOUND.create();
         return cast;
     }
 

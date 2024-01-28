@@ -8,7 +8,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.micalobia.command.calculate.CalculateCommand;
 import net.minecraft.command.argument.ScoreHolderArgumentType;
 import net.minecraft.command.argument.ScoreboardObjectiveArgumentType;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -21,7 +20,7 @@ public record ScoreboardArgument(String name) implements CalculateCommand.Input,
         return argument(name, ScoreboardObjectiveArgumentType.scoreboardObjective());
     }
 
-    private static RequiredArgumentBuilder<ServerCommandSource, ScoreHolderArgumentType.ScoreHolder> scoreHolder(String name) {
+    private static RequiredArgumentBuilder<ServerCommandSource, ScoreHolderArgumentType.ScoreHolders> scoreHolder(String name) {
         return argument(name, ScoreHolderArgumentType.scoreHolders()).suggests(ScoreHolderArgumentType.SUGGESTION_PROVIDER);
     }
 
@@ -40,7 +39,7 @@ public record ScoreboardArgument(String name) implements CalculateCommand.Input,
         var player = ScoreHolderArgumentType.getScoreHolder(ctx, getTargetName());
         var objective = ScoreboardObjectiveArgumentType.getObjective(ctx, getObjectiveName());
         var scoreboard = ctx.getSource().getServer().getScoreboard();
-        var score = new ScoreboardPlayerScore(scoreboard, objective, player);
+        var score = scoreboard.getOrCreateScore(player, objective);
         score.setScore(value);
     }
 
@@ -63,7 +62,7 @@ public record ScoreboardArgument(String name) implements CalculateCommand.Input,
     public int getInt(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         var player = ScoreHolderArgumentType.getScoreHolder(ctx, getTargetName());
         var objective = ScoreboardObjectiveArgumentType.getObjective(ctx, getObjectiveName());
-        return ctx.getSource().getServer().getScoreboard().getPlayerScore(player, objective).getScore();
+        return ctx.getSource().getServer().getScoreboard().getOrCreateScore(player, objective).getScore();
     }
 
     @Override

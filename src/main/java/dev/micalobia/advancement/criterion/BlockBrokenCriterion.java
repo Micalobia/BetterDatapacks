@@ -1,16 +1,13 @@
 package dev.micalobia.advancement.criterion;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.mojang.serialization.JsonOps;
-import dev.micalobia.BetterDatapacks;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancement.criterion.AbstractCriterion;
-import net.minecraft.advancement.criterion.AbstractCriterionConditions;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.predicate.BlockPredicate;
-import net.minecraft.predicate.entity.AdvancementEntityPredicateDeserializer;
+import net.minecraft.predicate.entity.EntityPredicate;
 import net.minecraft.predicate.entity.LootContextPredicate;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -20,17 +17,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public class BlockBrokenCriterion extends AbstractCriterion<BlockBrokenCriterion.Conditions> {
-
-
     @Override
-    protected Conditions conditionsFromJson(JsonObject obj, Optional<LootContextPredicate> predicate, AdvancementEntityPredicateDeserializer predicateDeserializer) {
-        var block = obj.get("block");
-        BlockPredicate blockPredicate = null;
-        if (block != null) {
-            var result = BlockPredicate.CODEC.parse(JsonOps.INSTANCE, block);
-            blockPredicate = result.resultOrPartial(BetterDatapacks.LOGGER::error).orElseThrow(() -> new JsonParseException("Failed to parse `block` field"));
-        }
-        return new Conditions(predicate, Optional.ofNullable(blockPredicate));
+    public Codec<Conditions> getConditionsCodec() {
+        return Conditions.CODEC;
     }
 
     public void trigger(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity) {
@@ -38,13 +27,12 @@ public class BlockBrokenCriterion extends AbstractCriterion<BlockBrokenCriterion
         this.trigger(serverPlayer, conditions -> conditions.test(state, blockEntity));
     }
 
-    public static class Conditions extends AbstractCriterionConditions {
-        private final Optional<BlockPredicate> block;
-
-        public Conditions(Optional<LootContextPredicate> playerPredicate, Optional<BlockPredicate> block) {
-            super(playerPredicate);
-            this.block = block;
-        }
+    public record Conditions(Optional<LootContextPredicate> player,
+                             Optional<BlockPredicate> block) implements AbstractCriterion.Conditions {
+        public static final Codec<Conditions> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                EntityPredicate.LOOT_CONTEXT_PREDICATE_CODEC.optionalFieldOf("player").forGetter(Conditions::player),
+                BlockPredicate.CODEC.optionalFieldOf("block").forGetter(Conditions::block)
+        ).apply(instance, Conditions::new));
 
         public boolean test(BlockState state, @Nullable BlockEntity blockEntity) {
             if (block.isEmpty()) return true;
